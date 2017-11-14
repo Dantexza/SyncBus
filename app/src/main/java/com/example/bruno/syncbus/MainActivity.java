@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -27,7 +28,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends AppCompatActivity
@@ -38,12 +41,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
+
         GpsTracker gps = new GpsTracker(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Button botao = (Button) findViewById(R.id.press);
+        FloatingActionButton  botao = (FloatingActionButton) findViewById(R.id.press);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -55,7 +62,7 @@ public class MainActivity extends AppCompatActivity
         mapFragment.getMapAsync(this);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);//teclado no abre com o aplicativo
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
@@ -83,7 +90,7 @@ public class MainActivity extends AppCompatActivity
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
-
+            mMap.setMyLocationEnabled(true);
 
         }
             botao.setOnClickListener(new View.OnClickListener() {
@@ -165,14 +172,20 @@ public class MainActivity extends AppCompatActivity
     private void goLinhas() {
         Intent intencaolinhas = new Intent(this,LinhasActivity.class);
         startActivity(intencaolinhas);}
+    //Configurações mapa
     private GoogleMap mMap;
     public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
         GpsTracker gps = new GpsTracker(this);
         LatLng atLocation = new LatLng( gps.getLatitude(),gps.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(atLocation).title("São José dos Campos"));
+        try{
+        mMap.setMyLocationEnabled(true);}
+        catch (SecurityException e){}
+        //mMap.addMarker(new MarkerOptions().position(atLocation).icon(BitmapDescriptorFactory.fromResource(R.drawable.busicon)));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(atLocation));
         mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(atLocation , 12.5f) );
+
         //Toast.makeText(getApplicationContext(),"Latitude= "+gps.getLatitude()+"  Longitude= "+gps.getLongitude(),Toast.LENGTH_LONG).show();
     }
 
