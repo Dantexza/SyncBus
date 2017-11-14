@@ -1,12 +1,16 @@
 package com.example.bruno.syncbus;
 
+import android.Manifest;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -29,6 +33,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1 ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,11 +56,42 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        botao.setOnClickListener(new View.OnClickListener() {
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
+                );
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+
+
+        }
+            botao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 GpsTracker gps = new GpsTracker(getApplicationContext());
                 Toast.makeText(getApplicationContext(),"Latitude= "+gps.getLatitude()+"  Longitude= "+gps.getLongitude(),Toast.LENGTH_LONG).show();
+
             }
         });
 
@@ -132,7 +169,7 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         GpsTracker gps = new GpsTracker(this);
-        LatLng atLocation = new LatLng(gps.getLongitude(), gps.getLatitude());
+        LatLng atLocation = new LatLng( gps.getLatitude(),gps.getLongitude());
         mMap.addMarker(new MarkerOptions().position(atLocation).title("São José dos Campos"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(atLocation));
         mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(atLocation , 12.5f) );
