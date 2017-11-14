@@ -1,6 +1,7 @@
 package com.example.bruno.syncbus;
 
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -16,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,11 +32,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GpsTracker gps = new GpsTracker(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        Button botao = (Button) findViewById(R.id.press);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -46,6 +49,14 @@ public class MainActivity extends AppCompatActivity
         mapFragment.getMapAsync(this);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        botao.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GpsTracker gps = new GpsTracker(getApplicationContext());
+                Toast.makeText(getApplicationContext(),"Latitude= "+gps.getLatitude()+"  Longitude= "+gps.getLongitude(),Toast.LENGTH_LONG).show();
+            }
+        });
 
     }
     private void callSetting() {
@@ -120,11 +131,12 @@ public class MainActivity extends AppCompatActivity
     private GoogleMap mMap;
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        // Add a marker in Sydney and move the camera
-        LatLng sjc = new LatLng(-23.216802, -45.897517);
-        mMap.addMarker(new MarkerOptions().position(sjc).title("São José dos Campos"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sjc));
-        mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(-23.216802,-45.897517) , 12.5f) );
+        GpsTracker gps = new GpsTracker(this);
+        LatLng atLocation = new LatLng(gps.getLongitude(), gps.getLatitude());
+        mMap.addMarker(new MarkerOptions().position(atLocation).title("São José dos Campos"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(atLocation));
+        mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(atLocation , 12.5f) );
+        //Toast.makeText(getApplicationContext(),"Latitude= "+gps.getLatitude()+"  Longitude= "+gps.getLongitude(),Toast.LENGTH_LONG).show();
     }
 
 
