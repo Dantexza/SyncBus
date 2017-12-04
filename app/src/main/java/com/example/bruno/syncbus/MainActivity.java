@@ -2,8 +2,10 @@ package com.example.bruno.syncbus;
 
 import android.Manifest;
 import android.app.ListActivity;
+import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +13,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -22,6 +25,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -32,19 +37,29 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1 ;
+    String refreshtoken;
 
+    private BroadcastReceiver broadcastReceiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
+        if(SharedPrefManager.getMinhaInstancia(this).getToken()!=null){
+            Log.d("myfcmtokenshared",SharedPrefManager.getMinhaInstancia(this).getToken());
 
+        }
 
+        registerReceiver(broadcastReceiver, new IntentFilter(MyFirebaseInstanceIdService.TOKEN_BROADCAST));
+
+        //final TextView token = (TextView) findViewById(R.id.token);
         GpsTracker gps = new GpsTracker(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -96,11 +111,13 @@ public class MainActivity extends AppCompatActivity
             botao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GpsTracker gps = new GpsTracker(getApplicationContext());
-                Toast.makeText(getApplicationContext(),"Latitude= "+gps.getLatitude()+"  Longitude= "+gps.getLongitude(),Toast.LENGTH_LONG).show();
+                GpsTracker gps = new GpsTracker(getApplicationContext());refreshtoken = FirebaseInstanceId.getInstance().getToken();
+                Toast.makeText(getApplicationContext(),FirebaseInstanceId.getInstance().getToken(),Toast.LENGTH_LONG).show();
+
 
             }
         });
+
 
     }
     private void callSetting() {
